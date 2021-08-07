@@ -12,6 +12,14 @@ tags: Hexo
 
 关于网站信息的修改在`_config.yml`进行，例如修改标题在Site下。
 
+## 修改域名
+
+主要步骤上面的资料已经很详细了，但关于这段
+
+>注：如果你用了 hexo clean 命令删除本地静态资源，CNAME文件也会被删掉，所以你可以在本地生成的public文件夹中直接创建好，再上传。
+
+也许是typo，应该把CMAKE文件放在source里，才不会被删。
+
 # 安装主题
 
 本站采用next主题：https://github.com/next-theme/hexo-theme-next

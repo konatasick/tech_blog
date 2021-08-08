@@ -1,7 +1,11 @@
 ---
 title: 使用 Hexo + GitHub Page 自建博客
 date: 2021-08-08 04:14:38
-tags: Hexo
+tags: 
+- Hexo
+- GitHub
+categories: 
+- Project
 ---
 
 # 创建页面
@@ -18,7 +22,7 @@ tags: Hexo
 
 >注：如果你用了 hexo clean 命令删除本地静态资源，CNAME文件也会被删掉，所以你可以在本地生成的public文件夹中直接创建好，再上传。
 
-也许是typo，应该把CMAKE文件放在source里，才不会被删。
+也许是typo，应该把CNAME文件放在source里，才不会被删。
 
 # 安装主题
 
@@ -34,6 +38,7 @@ $ npm install hexo-theme-next
 
 以改scheme为例，如果按照上面的教程走，那就是npm安装的，运行：
 ```
-$ cp themes/next/_config.yml _config.next.yml
+$ cp node_modules/hexo-theme-next/_config.yml _config.next.yml
 ```
 然后修改Schemes的部分即可。
+

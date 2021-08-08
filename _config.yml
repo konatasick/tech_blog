@@ -4,18 +4,18 @@
 
 # Site
 title: Konata Tech Blog
-subtitle: ''
-description: ''
+subtitle: 'No bug no life!'
+description: '堆满了debug记录的笔记本'
 keywords:
-author: John Doe
+author: Konata Izumi
 language: en
 timezone: ''
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: http://example.com
-permalink: :year/:month/:day/:title/
-permalink_defaults:
+url: https://tech.konata.co
+permalink: :year-:month-:day-:title/
+permalink_defaults: 
 pretty_urls:
   trailing_index: true # Set to false to remove trailing 'index.html' from permalinks
   trailing_html: true # Set to false to remove trailing '.html' from permalinks
@@ -31,7 +31,7 @@ i18n_dir: :lang
 skip_render:
 
 # Writing
-new_post_name: :title.md # File name of new posts
+new_post_name: :year-:month-:day-:title.md # File name of new posts
 default_layout: post
 titlecase: false # Transform title into titlecase
 external_link:
@@ -105,3 +105,10 @@ deploy:
   type: git
   repo: https://github.com/konatasick/konatasick.github.io.git # git@github.com:YangZejiang/YangZejiang.github.io.git
   branch: [published] # published
+
+# Search
+search:
+  path: search.xml
+  field: post
+  format: html
+  limit: 10000

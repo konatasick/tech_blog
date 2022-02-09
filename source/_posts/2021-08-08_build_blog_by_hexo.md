@@ -42,3 +42,13 @@ $ cp node_modules/hexo-theme-next/_config.yml _config.next.yml
 ```
 然后修改Schemes的部分即可。
 
+
+# 其他操作
+```
+$ hexo generate # 生成本地静态文件
+$ hexo deploy   # 部署
+$ hexo clean   
+$ hexo g & hexo d 
+$ hexo new post 'title'
+```
+

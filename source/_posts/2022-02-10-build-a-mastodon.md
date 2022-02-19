@@ -1,5 +1,5 @@
 ---
-title: build-a-mastodon
+title: Mastodon 建站笔记
 date: 2022-02-10 04:38:33
 tags: 
 - nginx
@@ -9,9 +9,11 @@ categories:
 - Project
 ---
 
+
+
 ## Prerequisites
 
-参考 [这个教程](https://www.howtoforge.com/how-to-install-mastodon-social-network-with-docker-on-ubuntu-1804/) 或 [蓝盒子站长的教程](https://pullopen.github.io/基础搭建/2020/10/19/Mastodon-on-Docker.html) ，一直进行到把 docker 和 docker-compose 装好。
+参考[蓝盒子站长的教程](https://pullopen.github.io/基础搭建/2020/10/19/Mastodon-on-Docker.html) ，一直进行到把 docker 和 docker-compose 装好。
 
 Checklist：
 
@@ -21,6 +23,43 @@ Checklist：
 - 安装成功 docker 和 docker-compose 
 
 ## Postgres database
+
+**Update 2022.2.19：**
+
+这一步我已经找到原因了，是因为在原教程中，写的是：
+
+>刚才docker-compose.yml文件中，数据库（db）部分的地址为./postgres:/var/lib/postgresql/data，因此你的数据库绝对地址为/home/mastodon/mastodon/postgres。
+
+然后我发现我wget最新的docker-compose配置，这边已经变成了：
+
+```
+    volumes:
+      - ./postgres14:/var/lib/postgresql/data
+```
+
+所以我当时按照教程运行：
+```
+docker run --name postgres12 -v /home/mastodon/mastodon/postgres:/var/lib/postgresql/data -e   POSTGRES_PASSWORD=设置数据库管理员密码 --rm -d postgres:12.5-alpine
+```
+实际上是在`./postgres`里操作，但我应该在`./postgres14`里操作才能真的把数据写进docker。所以这里应该把命令改为：
+```
+docker run --name postgres12 -v /home/mastodon/mastodon/postgres14:/var/lib/postgresql/data -e   POSTGRES_PASSWORD=设置数据库管理员密码 --rm -d postgres:12.5-alpine
+```
+或者把docker-compose中的
+```
+    volumes:
+      - ./postgres14:/var/lib/postgresql/data
+```
+改回
+```
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+```
+总之目的都是让我们能真的实际操作到postgres的数据并让docker能访问到。
+
+这里因为我还是按照之前的路径操作，后来直接进入`mastodon_db_1`才真正写到了`./postgres14`里，所以我的`./postgres`实际上是没有用的，我就把整个文件夹删掉了。
+
+**原文：**
 
 在设置mastodon的时候，运行：
 
@@ -77,7 +116,7 @@ $ sudo docker exec -it mastodon_db_1 psql -U postgres
 psql (12.5)
 Type "help" for help.
 
-postgres=# CREATE USER mastodon WITH PASSWORD 'mastodon-db' CREATEDB;
+postgres=# CREATE USER mastodon WITH PASSWORD 'your_password' CREATEDB;
 CREATE ROLE
 postgres=# exit
 ```
@@ -112,7 +151,15 @@ Redis configuration works! 🎆
 
 Do you want to store uploaded files on the cloud? No
 
-Do you want to send e-mails from localhost? （这一步参考原教程配置，我配坏了）
+Do you want to send e-mails from localhost? No
+SMTP server: smtp.zoho.eu
+SMTP port: 587
+SMTP username: 你的zoho管理员邮箱地址
+SMTP password: 你的zoho管理员密码
+SMTP authentication: plain
+SMTP OpenSSL verify mode: none
+E-mail address to send e-mails "from": 你的zoho管理员邮箱地址
+Send a test e-mail with this configuration right now? no
 
 This configuration will be written to .env.production
 Save configuration? Yes
@@ -155,6 +202,8 @@ sudo certbot certonly --nginx -d example.com
 sudo ln -s /etc/nginx/sites-available/example.com.conf /etc/nginx/sites-enabled/
 ```
 
+（这边一定要加 **certonly** 这个参数！我因为这一步debug了一整天）
+
 然后把example.com.conf 里这两行取消注释（#删掉）
 
 ```
@@ -166,9 +215,17 @@ sudo ln -s /etc/nginx/sites-available/example.com.conf /etc/nginx/sites-enabled/
 记得上面的example.com实际上应该是你的域名。
 
 
+要确保你的`nginx -t`没有任何问题，我遇到了warning结果最后真的是那个warning导致的错误，不要忽略warning！
 
+最后可以通过
 
+```
+certbot renew --dry_run
+```
 
+测试证书的自动更新是否起效，`--dry_run`就是仅打印信息，不实际执行。
+
+这一步很多教程会教你设置定期任务来更新，但实际上certbot是会自动更新的（参考[这篇文章](https://blog.csdn.net/AlistairEd/article/details/113804554) ）。
 
 
 参考资料：

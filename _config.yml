@@ -112,3 +112,22 @@ search:
   field: post
   format: html
   limit: 10000
+
+giscus:
+  enable: true
+  repo: konatasick/tech_blog # Github repository name
+  repo_id: MDEwOlJlcG9zaXRvcnkzOTM3OTMwMDE= # Github repository id
+  category: Announcements # Github discussion category
+  category_id: DIC_kwDOF3jN6c4CBP4i # Github discussion category id
+  # Available values: pathname | url | title | og:title
+  mapping: pathname
+  # Available values: 0 | 1 
+  reactions_enabled: 1
+   # Available values: 0 | 1 
+  emit_metadata: 0
+  # Available values: light | dark | dark_high_contrast | transparent_dark | preferred-color-scheme
+  theme: light
+  # Available values: en | zh-C
+  lang: en
+  # Available value: anonymous
+  crossorigin: anonymous

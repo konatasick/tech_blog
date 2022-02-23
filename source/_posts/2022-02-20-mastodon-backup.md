@@ -106,11 +106,11 @@ $ du -h --max-depth=1
 source /etc/profile
 now=$(date "+%Y%m%d-%H%M%S")
 origin="/home/mastodon/mastodon"
-target="scaleway:backup.retirenow.top"
+target="scaleway:你的bucket名字"
 echo `date +"%Y-%m-%d %H:%M:%S"` " now starting export"
-/usr/bin/docker exec mastodon_db_1 pg_dump -U postgres -Fc mastodon_production > ${origin}/backup.dump &&
+/usr/bin/docker exec pg容器名 pg_dump -U postgres -Fc mastodon_production > ${origin}/backup.dump &&
 echo `date +"%Y-%m-%d %H:%M:%S"` " succeed and upload to s3 now"
-/usr/bin/zip -P back-up-password ${origin}/backup_${now}.zip ${origin}/backup.dump 
+/usr/bin/zip -P 密码 ${origin}/backup_${now}.zip ${origin}/backup.dump
 ```
 
 前面定义了一些路径和时间等，先通过`pg_dump`导出`backup.dump`，再将其加密压缩为`backup_${now}.zip`，但从上文可见，对于docker安装的情况，直接copy文件夹即可，所以我对这部分做了一些改动并参考[o3o的配置备份脚本](https://www.notion.so/0f154999939e44109a5827e6c542fb53#59063f5382174e638fc529602d810d32)，增加了一些关键信息的备份，我的完整**本地备份**脚本如下：
@@ -121,22 +121,19 @@ echo `date +"%Y-%m-%d %H:%M:%S"` " succeed and upload to s3 now"
 # Save this file at  /opt/mastodon-backup/backup_local.sh
 # Set a cronjob:  0 5 * * * root /bin/bash /opt/mastodon-backup/backup_local.sh > /opt/mastodon-backup/logs/backup_local.log 2>&1
 
-#Loading /etc/profile
-# source /etc/profile
-
-#Set backup_folder and name
+# Set backup_folder and name
 now=$(date "+%Y%m%d-%H%M%S")
 origin_folder="/home/mastodon/mastodon"
 backup_folder="/opt/mastodon-backup/dbbackup"
 
-#Clean up old backup file
+# Clean up old backup file
 rm -r ${backup_folder}/*
 
-#Generating a mastodon backup exclude cache
+# Generating a mastodon backup exclude cache
 echo `date +"%Y-%m-%d %H:%M:%S"` " now starting export"
 /usr/bin/zip -P 密码 -rqx=${origin_folder}/public/system/cache/* ${backup_folder}/backup_${now}.zip ${origin_folder}
 
-#Copying important files
+# Copying important files
 cp -r /etc/nginx/sites-available ${backup_folder}
 echo `date +"%Y-%m-%d %H:%M:%S"` " done!"
 ```
@@ -173,7 +170,53 @@ rm -f ${origin}/backup.dump ${origin}/backup_${now}.zip
 
 在我更改后的脚本，我采取的方法是每次先删除上一次的备份文件，而不是在上传后删除，这样可以在本地和Scaleway都有一个备份。
 
-Scaleway和`rclone`的设置请直接参考[利用Scaleway备份数据库](https://pullopen.github.io/%E5%9F%BA%E7%A1%80%E6%90%AD%E5%BB%BA/2020/10/19/Mastodon-on-Docker.html#%E5%88%A9%E7%94%A8scaleway%E5%A4%87%E4%BB%BD%E6%95%B0%E6%8D%AE%E5%BA%93) ，等我配好Scaleway会更新这个部分。
+Scaleway和`rclone`的设置可参考[利用Scaleway备份数据库](https://pullopen.github.io/%E5%9F%BA%E7%A1%80%E6%90%AD%E5%BB%BA/2020/10/19/Mastodon-on-Docker.html#%E5%88%A9%E7%94%A8scaleway%E5%A4%87%E4%BB%BD%E6%95%B0%E6%8D%AE%E5%BA%93) ，[设置定期异地备份长毛象数据库和关键配置](https://www.notion.so/0f154999939e44109a5827e6c542fb53) ，
 
+注意，备份的`bucket`要和媒体存储的分开，并且设为`private`！！
 
+可以用
+```
+rclone ls scaleway:你的bucket名称
+```
+查看bucket里的文件，确认是否正常上传和删除。
 
+最终我的完整脚本：
+```
+#!/bin/bash
+
+# Save this file at  /opt/mastodon-backup/backup.sh
+# Set a cronjob:  0 5 * * * root /bin/bash /opt/mastodon-backup/backup.sh > /opt/mastodon-backup/logs/backup.log 2>&1
+
+# Loading /etc/profile
+source /etc/profile
+
+# Set backup_folder and name
+now=$(date "+%Y%m%d-%H%M%S")
+origin_folder="/home/mastodon/mastodon"
+backup_folder="/opt/mastodon-backup/dbbackup"
+target_bucket="scaleway:你的bucket名称"
+
+# Clean up old backup file
+rm -r ${backup_folder}/*
+
+# Generating a mastodon backup exclude cache
+echo `date +"%Y-%m-%d %H:%M:%S"` " now starting export"
+/usr/bin/zip -P 密码 -rqx=${origin_folder}/public/system/cache/* ${backup_folder}/backup_${now}.zip ${origin_folder}
+
+# Copying important files
+cp -r /etc/nginx/sites-available/ ${backup_folder}
+echo `date +"%Y-%m-%d %H:%M:%S"` " local backup done!"
+
+# upload to scaleway
+/usr/bin/rclone copy ${backup_folder}/ ${target_bucket} 
+echo `date +"%Y-%m-%d %H:%M:%S"` " ok all done"
+
+# delete backup longer than 7d
+/usr/bin/rclone --min-age 7d  delete ${target_bucket} 
+```
+单独运行一遍可以成功后，就可以把`crontab`中的`backup_local.sh`改为`backup.sh`啦！这样你就有了一个：
+- 本地和scaleway双重备份
+- 本地保留一天，scaleway保留7天
+- 包含nginx设置和整个mastodon目录
+
+的备份啦！

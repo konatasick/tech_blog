@@ -12,6 +12,25 @@ categories:
 
 参考资料：https://zhuanlan.zhihu.com/p/70240127
 
+官网下载安装node，确认以下命令均可使用：
+```
+node -v
+npm -v
+git --version
+```
+安装：
+```
+npm install -g hexo-cli
+hexo -v
+```
+如果出现报错
+```
+ERROR Cannot find module 'hexo' 
+```
+重新安装hexo-util
+```
+npm install -- save-dev hexo-util
+```
 使用Hexo自建博客，Hexo会自动生成静态页面并部署到GitHub repo上，不需要直接git push。而在GitHub repo里也只会有public目录下的内容。与此同时public文件夹在hexo的目录下是在.gitignore里的，所以不要直接push整个目录，这样会导致网页404。
 
 关于网站信息的修改在`_config.yml`进行，例如修改标题在Site下。

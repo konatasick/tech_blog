@@ -119,7 +119,7 @@ echo `date +"%Y-%m-%d %H:%M:%S"` " succeed and upload to s3 now"
 #!/bin/bash
 
 # Save this file at  /opt/mastodon-backup/backup_local.sh
-# Set a cronjob:  0 5 * * * root /bin/bash /opt/mastodon-backup/backup_local.sh > /opt/mastodon-backup/logs/backup_local.log 2>&1
+# Set a cronjob:  0 5 * * * root /bin/bash /opt/mastodon-backup/backup_local.sh >> /opt/mastodon-backup/logs/backup_local.log 2>&1
 
 # Set backup_folder and name
 now=$(date "+%Y%m%d-%H%M%S")
@@ -150,7 +150,7 @@ drwxr-xr-x 2 root root 4.0K Feb 20 00:09 sites-available
 我将这个脚本存为`backup_local.sh`，在我配置好Scaleway之前守护我的数据，将其放在crontab下定期运行：
 
 ```
-0 5 * * * root /bin/bash /opt/mastodon-backup/backup_local.sh.sh > /opt/mastodon-backup/logs/backup_local.sh.log 2>&1
+0 5 * * * root /bin/bash /opt/mastodon-backup/backup_local.sh.sh >> /opt/mastodon-backup/logs/backup_local.sh.log 2>&1
 ```
 
 备份时间设在清除外部缓存半小时后。
@@ -185,7 +185,7 @@ rclone ls scaleway:你的bucket名称
 #!/bin/bash
 
 # Save this file at  /opt/mastodon-backup/backup.sh
-# Set a cronjob:  0 5 * * * root /bin/bash /opt/mastodon-backup/backup.sh > /opt/mastodon-backup/logs/backup.log 2>&1
+# Set a cronjob:  0 5 * * * root /bin/bash /opt/mastodon-backup/backup.sh >> /opt/mastodon-backup/logs/backup.log 2>&1
 
 # Loading /etc/profile
 source /etc/profile

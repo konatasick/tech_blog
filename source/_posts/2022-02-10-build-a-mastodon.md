@@ -220,7 +220,7 @@ sudo ln -s /etc/nginx/sites-available/example.com.conf /etc/nginx/sites-enabled/
 最后可以通过
 
 ```
-certbot renew --dry_run
+certbot renew --dry-run
 ```
 
 测试证书的自动更新是否起效，`--dry_run`就是仅打印信息，不实际执行。
